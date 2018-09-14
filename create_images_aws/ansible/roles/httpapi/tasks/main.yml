@@ -1,0 +1,31 @@
+---
+
+# install packet
+- name: install_PACKET
+  yum: name={{ item }}  state=present
+  with_items:
+  - python-devel  
+  - gcc
+  - mysql 
+  - mysql-devel 
+  - unzip 
+  - openssl-devel 
+  - iputils
+
+# unzip source zip
+- name: upzip and remove file source
+  shell: "{{ item }}"
+  with_items:
+  - unzip "{{ source }}"
+  - rm -rf "{{ source }}"
+  args:
+    chdir: /data/
+
+
+# install all lib need for run 
+- name: Install lib for python
+  shell: pip2.7 install --trusted-host pypi.python.org --trusted-host files.pythonhosted.org -r install_requires.txt
+  args:
+    chdir: /data/{{ name }}/setup
+
+    

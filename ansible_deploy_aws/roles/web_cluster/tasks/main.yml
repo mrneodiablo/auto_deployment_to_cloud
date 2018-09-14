@@ -1,0 +1,106 @@
+---
+
+- name: Create security group ELB
+  ec2_group:
+    name: "elb_security_group"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    description: "Ansible ELB security group"
+    region: "{{ region }}"
+    rules:
+    - { proto: "tcp", from_port: 80, to_port: 80, cidr_ip: 0.0.0.0/0 }
+    rules_egress:
+    - { proto: "all", cidr_ip: 0.0.0.0/0 }
+    tags: "Name=ELB"
+  register: firewall_public
+
+- name: Create security group instance
+  ec2_group:
+    name: "instance_security_group"
+    aws_access_key: "{{ aws_access_key }}"
+    aws_secret_key: "{{ aws_secret_key }}"
+    description: "Ansible INSTANCE security group"
+    region: "{{ region }}"
+    rules:
+    - { proto: "all", group_name: "instance_security_group" }  
+    - { proto: "all", group_id: "{{ firewall_public.group_id }}" }
+    - { proto: "tcp", from_port: 22, to_port: 22, cidr_ip: 0.0.0.0/0 }
+    rules_egress:
+    - { proto: "all", cidr_ip: 0.0.0.0/0 }
+    tags: "Name=instance"
+  register: firewall_local
+
+
+- name: Create RDS 
+  rds:
+   backup_retention: 0
+   aws_access_key: "{{ aws_access_key }}"
+   aws_secret_key: "{{ aws_secret_key }}"
+   region: "{{ region }}"
+   zone: "{{ zone }}"
+   command: "create"
+   db_engine: "MySQL"
+   db_name: "{{ rds.database_name }}"
+   vpc_security_groups: "{{ firewall_local.group_id }}"
+   instance_name: "mrneodiablo-testing"
+   instance_type: "db.t2.micro"
+   multi_zone: false
+   publicly_accessible: false
+   password: "{{ rds.database_pass }}"
+   port: "{{ rds.database_port }}"
+   size: "10"
+   username: "{{ rds.database_user }}"
+   wait: "yes"
+   wait_timeout: 600
+  register: rds_intance
+  until: rds_intance.instance.status == "available"
+  retries: 30
+  delay: 60
+
+
+   
+# create new instance  EC2
+- name: Create EC2 instance
+  ec2:
+   aws_access_key: "{{ aws_access_key }}"
+   aws_secret_key: "{{ aws_secret_key }}"
+   region:  "{{ region }}"
+   zone: "{{ zone }}"
+   image: "{{ new_instance.image }}"
+   instance_type: "{{ new_instance.instance_type }}"
+   user_data: "{{ lookup('template', '../templates/user_data.sh') }}"
+   key_name: "{{ key_name }}"
+   group_id: "{{ firewall_local.group_id }}"
+   instance_tags: "Name=new_instance"
+   count: 1
+   wait: yes
+   wait_timeout: 500
+  register: instance  
+
+# create elb  
+- name: Create load balancer
+  ec2_elb_lb:
+   aws_access_key: "{{ aws_access_key }}"
+   aws_secret_key: "{{ aws_secret_key }}"
+   region:  "{{ region }}"
+   zones:
+    - ap-southeast-1a
+    - ap-southeast-1b
+   name: "elbhttpupload" 
+   health_check:
+    ping_protocol: tcp # options are http, https, ssl, tcp
+    ping_port: 80
+    response_timeout: 5 # seconds
+    interval: 30 # seconds
+    unhealthy_threshold: 2
+    healthy_threshold: 10
+   instance_ids: "{{ instance.instance_ids }}"
+   listeners:
+    - protocol: http # for web server
+      load_balancer_port: 80
+      instance_port: 80
+   security_group_ids: "{{ firewall_public.group_id }}"
+   state: "present"
+   wait: "yes"
+
+

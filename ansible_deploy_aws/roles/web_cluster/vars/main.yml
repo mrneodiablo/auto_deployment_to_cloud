@@ -1,0 +1,19 @@
+---
+
+## secret info
+aws_access_key: ""
+aws_secret_key: ""
+
+
+# common info 
+region: "ap-southeast-1"
+zone: "ap-southeast-1a"
+key_name: "vothanhdong18_key_public"
+
+
+# instance case
+new_instance: { image: "ami-0920558d486c2fc0a", instance_type: "t2.micro" }
+
+
+# RDS config
+rds: { database_name: "fileupload", database_user: "", database_pass: "", database_port: "3306" }

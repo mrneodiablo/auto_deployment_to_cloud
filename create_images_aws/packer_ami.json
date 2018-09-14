@@ -1,0 +1,53 @@
+{
+  "variables": {
+    "aws_access_key": "",
+    "aws_secret_key": "",
+    "region": "ap-southeast-1"
+  },
+  "builders": [
+    {
+      "name": "AWS AMI Builder",
+      "type": "amazon-ebs",
+      "access_key": "{{user `aws_access_key`}}",
+      "secret_key": "{{user `aws_secret_key`}}",
+      "region": "ap-southeast-1",
+      "source_ami": "ami-8e0205f2",
+      "instance_type": "t2.micro",
+      "ssh_username": "centos",
+      "ami_name": "centos-http-upload-{{timestamp}}"
+    }
+  ],
+  "provisioners": [
+    { 
+
+        "type": "shell",
+        "inline": [
+            "sudo curl 'https://bootstrap.pypa.io/get-pip.py' -o '/tmp/get-pip.py'",
+            "sudo python2.7 /tmp/get-pip.py",
+            "sudo pip install ansible",
+            "sudo mkdir /data"
+        ]
+    },
+    {
+      "type": "file",
+      "source": "sourceapp/http-upload-api.zip",
+      "destination": "/tmp/http-upload-api.zip"
+    },
+    {
+      "type": "shell",
+      "inline": [
+        "sudo cp /tmp/http-upload-api.zip /data/http-upload-api.zip",
+        "sudo rm -rf /tmp/http-upload-api.zip"
+      ]
+    },
+    {
+        "type": "ansible-local",
+        "playbook_file": "ansible/playbook.yaml",
+        "role_paths": [
+            "ansible/roles/httpapi"
+        ],
+        "playbook_dir": "ansible"
+    }
+]
+
+}
