@@ -1,0 +1,37 @@
+[
+    {
+      "name": "database",
+      "cpu": 0,
+      "environment": [
+        {
+          "name": "MYSQL_DATABASE",
+          "value": "file_upload"
+        },
+        {
+          "name": "MYSQL_PASSWORD",
+          "value": "dongvt"
+        },
+        {
+          "name": "MYSQL_ROOT_PASSWORD",
+          "value": "dongvt"
+        },
+        {
+          "name": "MYSQL_USER",
+          "value": "dongvt"
+        }
+      ],
+      "image": "mysql:5.7.23",
+      "healthCheck": {
+        "retries": 10,
+        "command": [
+          "mysqladmin -uroot -proot ping"
+        ],
+        "timeout": 5,
+        "interval": 5,
+        "startPeriod": 2
+      },
+      "essential": true,
+      "privileged": false
+      
+    }
+]

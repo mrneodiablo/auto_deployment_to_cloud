@@ -29,6 +29,15 @@ I will show for how to automation deployment your application  to AWS
 
 >> Run terraform
 
+> ECS and Terraform
+>> System diagram
+
+>> Install  Terraform
+
+>> File Tree
+
+>> Run terraform
+
 # Create AMIs
 
 [Create AMIs with Packer](./create_images_aws/README.md) for detail
@@ -40,5 +49,10 @@ I will show for how to automation deployment your application  to AWS
 
 
 # Auto deploy with Terraform
+
+[Auto Deploy with Terraform](./terraform_deploy_aws/README.md) for detail
+
+
+#  ECS and Terraform
 
 [Auto Deploy with Terraform](./terraform_deploy_aws/README.md) for detail
