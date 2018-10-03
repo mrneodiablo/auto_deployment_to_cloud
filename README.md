@@ -55,4 +55,4 @@ I will show for how to automation deployment your application  to AWS
 
 #  ECS and Terraform
 
-[Auto Deploy with Terraform](./terraform_ecs/README.md) for detail
+[ECS and Terraform](./terraform_ecs/README.md) for detail
