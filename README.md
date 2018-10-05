@@ -56,3 +56,7 @@ I will show for how to automation deployment your application  to AWS
 #  ECS and Terraform
 
 [ECS and Terraform](./terraform_ecs/README.md) for detail
+
+# Mix Jenkins Pipeline and Terraform and Docker to build ECS
+
+[ECS and Terraform](./jenkins_pipeline/README.md) for detail

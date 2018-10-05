@@ -1,0 +1,29 @@
+node {
+   stage('Preparation from SoureCode') { 
+      git 'https://github.com/dongvothanh/http-api-upload.git'
+   }
+   stage('Build Docker Images') {
+       sh 'sudo docker build setup/container/  -t 349161024290.dkr.ecr.ap-southeast-1.amazonaws.com/http-upload-api:last'
+   }
+   stage('Login AWS ERC') {
+       sh 'sudo $(sudo aws ecr get-login --no-include-email --region ap-southeast-1)'
+   }
+   stage('Push New Image to ERC') {
+       sh 'sudo docker push 349161024290.dkr.ecr.ap-southeast-1.amazonaws.com/http-upload-api:last'
+   }
+   stage('Preparation Scripts for deploy') { 
+      git 'https://github.com/mrneodiablo/auto_deployment_to_cloud.git'
+   }
+   stage('Terraform Init') { 
+      sh 'sudo terraform init terraform_ecs/live/prod/'
+   }   
+   stage('Terraform Plan') { 
+      sh 'sudo terraform plan terraform_ecs/live/prod/'
+   }
+   stage('Terraform Apply') { 
+      sh 'sudo terraform apply -auto-approve terraform_ecs/live/prod/'
+   }
+   stage('Terraform unmark resources') { 
+      sh 'sudo terraform taint aws_ecs_service.run-service'
+   }
+}
