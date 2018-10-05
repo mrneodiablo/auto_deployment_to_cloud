@@ -30,7 +30,7 @@
         "value": "dongvt"
       }
     ],
-    "image": "349161024290.dkr.ecr.ap-southeast-1.amazonaws.com/http-upload-api:newversiongood",
+    "image": "349161024290.dkr.ecr.ap-southeast-1.amazonaws.com/http-upload-api:last",
     "essential": true,
     "name": "webapp-http-app-container"
   },
